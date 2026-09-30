@@ -3,9 +3,15 @@ import { Timestamp } from 'firebase/firestore';
 import { getLectures, addLecture, updateLecture, deleteLecture } from '../services/academicService';
 import { Plus, Edit, Trash2, Calendar as CalendarIcon, Clock, Users, BookOpen } from 'lucide-react';
 
+const SUBJECTS = ['Science', 'Accounts', 'Economics', 'Marathi', 'Maths', 'Physics', 'Chemistry', 'Mathematics', 'Biology', 'Computer Science', 'English'];
+const COURSES = ['FYJC', 'SYJC', 'JEE', 'NEET', 'MHT-CET', 'Class 10', 'Class 9', 'Class 8'];
+const BATCHES = ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'Class 11-A', 'Class 11-B', 'Class 12-A', 'Class 12-B'];
+const FACULTIES = ['Narayan Sir', 'Mahesh Sir', 'Shailesh Sir', 'Santosh Sir', 'Chandrakant Sir'];
+
 interface Lecture {
   id?: string;
   title: string;
+  course: string;
   subject: string;
   faculty: string;
   batch: string;
@@ -16,12 +22,13 @@ interface Lecture {
 }
 
 export const LectureManagement = () => {
-  const emptyForm: Lecture = { title: '', subject: '', faculty: '', batch: '', date: '', startTime: '', endTime: '' };
+  const emptyForm: Lecture = { title: '', course: '', subject: '', faculty: '', batch: '', date: '', startTime: '', endTime: '' };
   const [lectures, setLectures] = useState<Lecture[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Lecture>(emptyForm);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchLectures = async () => {
     setLoading(true);
@@ -44,6 +51,8 @@ export const LectureManagement = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       if (editingId) {
         await updateLecture(editingId, formData);
@@ -57,6 +66,8 @@ export const LectureManagement = () => {
     } catch (error: any) {
       console.error("Error saving lecture:", error);
       alert("Failed to save lecture: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -112,13 +123,13 @@ export const LectureManagement = () => {
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
-            
+
             <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center mb-4">
               <BookOpen className="h-6 w-6 text-indigo-400" />
             </div>
             <h3 className="text-xl font-bold text-white mb-1">{lecture.title}</h3>
             <p className="text-sm font-medium text-indigo-400 mb-4">{lecture.subject}</p>
-            
+
             <div className="space-y-2 text-sm text-slate-400">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-slate-500" />
@@ -126,7 +137,7 @@ export const LectureManagement = () => {
               </div>
               <div className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-slate-500" />
-                <span>Batch: <strong className="text-slate-200">{lecture.batch}</strong></span>
+                <span>Course & Batch: <strong className="text-slate-200">{lecture.course} ({lecture.batch})</strong></span>
               </div>
               <div className="flex items-center gap-2">
                 <CalendarIcon className="h-4 w-4 text-slate-500" />
@@ -162,16 +173,34 @@ export const LectureManagement = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-1">Subject</label>
-                  <input required type="text" name="subject" value={formData.subject} onChange={handleInputChange} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+                  <select required name="subject" value={formData.subject} onChange={handleInputChange} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="" disabled>Select Subject</option>
+                    {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">Batch</label>
-                  <input required type="text" name="batch" value={formData.batch} onChange={handleInputChange} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+                  <label className="block text-sm font-medium text-slate-400 mb-1">Course</label>
+                  <select required name="course" value={formData.course} onChange={handleInputChange} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="" disabled>Select Course</option>
+                    {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Faculty Name</label>
-                <input required type="text" name="faculty" value={formData.faculty} onChange={handleInputChange} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500" />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-1">Batch</label>
+                  <select required name="batch" value={formData.batch} onChange={handleInputChange} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="" disabled>Select Batch</option>
+                    {BATCHES.map(b => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-1">Faculty Name</label>
+                  <select required name="faculty" value={formData.faculty} onChange={handleInputChange} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="" disabled>Select Faculty</option>
+                    {FACULTIES.map(f => <option key={f} value={f}>{f}</option>)}
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-400 mb-1">Date</label>
@@ -189,7 +218,9 @@ export const LectureManagement = () => {
               </div>
               <div className="pt-4 flex justify-end gap-3">
                 <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2.5 rounded-xl font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all">Save Lecture</button>
+                <button type="submit" disabled={isSubmitting} className="px-5 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all disabled:opacity-50 flex items-center">
+                  {isSubmitting ? 'Saving...' : 'Save Lecture'}
+                </button>
               </div>
             </form>
           </div>

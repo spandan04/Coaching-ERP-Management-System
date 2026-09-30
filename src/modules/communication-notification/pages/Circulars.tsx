@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { getCirculars, addCircular, deleteCircular } from '../services/communicationService';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../services/firebase/firebase';
 import { Plus, Trash2, FileText, X, Upload, Download, File } from 'lucide-react';
 
@@ -58,9 +58,33 @@ export const Circulars = () => {
 
       if (selectedFile) {
         const fileRef = ref(storage, `communication/circulars/${Date.now()}_${selectedFile.name}`);
-        await uploadBytes(fileRef, selectedFile);
-        fileUrl = await getDownloadURL(fileRef);
-        fileName = selectedFile.name;
+        
+        await new Promise((resolve, reject) => {
+          const uploadTask = uploadBytesResumable(fileRef, selectedFile);
+          
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              // Can track progress here if needed
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log('Upload is ' + progress + '% done');
+            },
+            (error) => {
+              console.error("Firebase Storage Upload Error:", error);
+              alert("Failed to upload file. Please check if Firebase Storage is enabled and CORS is configured.");
+              reject(error);
+            },
+            async () => {
+              try {
+                fileUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                fileName = selectedFile.name;
+                resolve(null);
+              } catch (err) {
+                reject(err);
+              }
+            }
+          );
+        });
       }
 
       await addCircular({

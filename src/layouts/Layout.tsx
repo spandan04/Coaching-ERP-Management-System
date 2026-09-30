@@ -1,10 +1,18 @@
 import { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { Users, UserPlus, Archive, LayoutDashboard, Menu, Sparkles, BookOpen, Calendar, CheckSquare, FileText, BarChart2, IndianRupee, PieChart, MessageSquare, Video } from 'lucide-react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Users, UserPlus, Archive, LayoutDashboard, Menu, Sparkles, BookOpen, Calendar, CheckSquare, FileText, BarChart2, IndianRupee, PieChart, MessageSquare, Video, LogOut } from 'lucide-react';
 import clsx from 'clsx';
+import { useAuth } from '../services/authentication/AuthContext';
 
 export const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
   const navItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Students', path: '/students', icon: Users },
@@ -66,7 +74,7 @@ export const Layout = () => {
         })}
       </nav>
       <div className="p-5 m-5 rounded-3xl bg-slate-800/50 border border-slate-700/50 shadow-sm">
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-3.5 mb-4">
           <div className="w-10 h-10 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-indigo-400 font-bold shadow-sm">
             <span className="text-sm">A</span>
           </div>
@@ -75,6 +83,13 @@ export const Layout = () => {
             <div className="text-xs text-slate-400 font-medium mt-0.5">Coaching Classes</div>
           </div>
         </div>
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-sm font-medium"
+        >
+          <LogOut className="w-4 h-4" />
+          Logout
+        </button>
       </div>
     </>
   );
@@ -106,7 +121,16 @@ export const Layout = () => {
             <Menu className="h-6 w-6" />
           </button>
           <span className="text-lg font-bold text-white">Coaching Workspace</span>
-          <div className="w-9 h-9 rounded-full bg-indigo-900/50 border border-indigo-800 flex items-center justify-center text-indigo-400 font-bold text-sm">A</div>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-indigo-900/50 border border-indigo-800 flex items-center justify-center text-indigo-400 font-bold text-sm">A</div>
+            <button
+              onClick={handleLogout}
+              className="p-2 text-red-400 hover:text-red-300 hover:bg-slate-800 rounded-xl transition-colors focus:outline-none"
+              title="Logout"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
+          </div>
         </header>
         
         <div className="flex-1 overflow-auto p-6 md:p-10 lg:p-12">

@@ -46,6 +46,7 @@ export const TestManagement = () => {
     dueDate: '',
     status: 'Published' as 'Draft' | 'Published'
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [currentTest, setCurrentTest] = useState<Test>({
     title: '',
@@ -130,6 +131,8 @@ export const TestManagement = () => {
       return;
     }
 
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await updateTest(testToAssign.id, {
         course: assignForm.course,
@@ -145,6 +148,8 @@ export const TestManagement = () => {
     } catch (error: any) {
       console.error("Error assigning test:", error);
       alert("Failed to assign test: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -210,6 +215,8 @@ export const TestManagement = () => {
       }
     }
 
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       if (currentTest.id) {
         await updateTest(currentTest.id, {
@@ -227,6 +234,8 @@ export const TestManagement = () => {
     } catch (error: any) {
       console.error("Error saving test:", error);
       alert("Failed to save test: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -412,8 +421,8 @@ export const TestManagement = () => {
             
             <div className="px-6 py-4 border-t border-slate-800 flex justify-end gap-3 bg-slate-800/30 sticky bottom-0 rounded-b-3xl">
               <button onClick={() => setShowModal(false)} className="px-6 py-2.5 rounded-xl font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Cancel</button>
-              <button onClick={saveTest} className="px-6 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2">
-                <Save className="w-4 h-4" /> Save Test
+              <button onClick={saveTest} disabled={isSubmitting} className="px-6 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2 disabled:opacity-50">
+                <Save className="w-4 h-4" /> {isSubmitting ? 'Saving...' : 'Save Test'}
               </button>
             </div>
           </div>
@@ -490,8 +499,8 @@ export const TestManagement = () => {
             
             <div className="px-6 py-4 border-t border-slate-800 flex justify-end gap-3 bg-slate-800/30 rounded-b-3xl">
               <button onClick={() => setShowAssignModal(false)} className="px-6 py-2.5 rounded-xl font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Cancel</button>
-              <button onClick={handleAssignTest} className="px-6 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2">
-                Assign Test
+              <button onClick={handleAssignTest} disabled={isSubmitting} className="px-6 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all flex items-center gap-2 disabled:opacity-50">
+                {isSubmitting ? 'Assigning...' : 'Assign Test'}
               </button>
             </div>
           </div>

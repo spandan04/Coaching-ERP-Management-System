@@ -26,6 +26,7 @@ export const VideoLectureManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<VideoLecture>(emptyForm);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Data for Dropdowns
   const [courses, setCourses] = useState<string[]>([]);
@@ -81,6 +82,8 @@ export const VideoLectureManagement = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       if (editingId) {
         await updateVideoLecture(editingId, formData);
@@ -94,6 +97,8 @@ export const VideoLectureManagement = () => {
     } catch (error: any) {
       console.error("Error saving video lecture:", error);
       alert("Failed to save lecture: " + error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -263,7 +268,9 @@ export const VideoLectureManagement = () => {
               
               <div className="pt-4 flex justify-end gap-3 border-t border-slate-800/50">
                 <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2.5 rounded-xl font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all">Save Lecture</button>
+                <button type="submit" disabled={isSubmitting} className="px-5 py-2.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all disabled:opacity-50 flex items-center">
+                  {isSubmitting ? 'Saving...' : 'Save Lecture'}
+                </button>
               </div>
             </form>
           </div>

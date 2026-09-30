@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { getStudentFees, getPayments } from '../../financial-management/services/feeService';
 import { Search, Download, FileText, IndianRupee, TrendingUp, AlertCircle } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 export const FeeReports = () => {
@@ -85,7 +85,7 @@ export const FeeReports = () => {
       ];
     });
 
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 20,
       head: [['#', 'Date', 'Receipt No', 'Student Name', 'Mode', 'Amount']],
       body: tableData,

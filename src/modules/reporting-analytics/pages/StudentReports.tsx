@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { getStudents, getStudentDashboardStats } from '../../student-management/services/studentService';
 import { Search, Download, FileText, Users, UserCheck, Archive } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 export const StudentReports = () => {
@@ -50,7 +50,7 @@ export const StudentReports = () => {
       s.status
     ]);
 
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 20,
       head: [['#', 'Admission No', 'Name', 'Course', 'Batch', 'Mobile', 'Status']],
       body: tableData,

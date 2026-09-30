@@ -72,9 +72,26 @@ export const StudentForm = ({
     { label: 'Mobile Number', name: 'mobileNumber', required: true, type: 'tel', colSpan: 3 },
   ];
 
+  const COURSES = ['FYJC', 'SYJC', 'JEE', 'NEET', 'MHT-CET', 'Class 10', 'Class 9', 'Class 8'];
+  const BATCHES = ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'Class 11-A', 'Class 11-B', 'Class 12-A', 'Class 12-B'];
+
   const academicFields = [
-    { label: 'Course Enrolled', name: 'courseEnrolled', required: true, type: 'text', colSpan: 3 },
-    { label: 'Batch', name: 'batch', required: true, type: 'text', colSpan: 3 },
+    { 
+      label: 'Course Enrolled', 
+      name: 'courseEnrolled', 
+      required: true, 
+      isSelect: true, 
+      options: [{value: '', label: 'Select Course'}, ...COURSES.map(c => ({value: c, label: c}))], 
+      colSpan: 3 
+    },
+    { 
+      label: 'Batch', 
+      name: 'batch', 
+      required: true, 
+      isSelect: true, 
+      options: [{value: '', label: 'Select Batch'}, ...BATCHES.map(b => ({value: b, label: b}))], 
+      colSpan: 3 
+    },
     { label: 'Admission Date', name: 'admissionDate', required: true, type: 'date', colSpan: 2, className: '[color-scheme:dark]' },
     { label: 'Previous School/College', name: 'previousSchool', type: 'text', colSpan: 2 },
     { label: 'Academic Qualification', name: 'academicQualification', type: 'text', colSpan: 2 },

@@ -6,12 +6,14 @@ import { Calendar as CalendarIcon, Clock, User, BookOpen } from 'lucide-react';
 
 interface TimetableRecord {
   id: string;
+  course: string;
   batch: string;
   subject: string;
   faculty: string;
   day: string;
-  startTime: string;
-  endTime: string;
+  timeSlot?: string;
+  startTime?: string;
+  endTime?: string;
   room?: string;
 }
 
@@ -24,17 +26,46 @@ export const StudentTimetable = () => {
     const fetchTimetable = async () => {
       if (!studentData?.id) return;
       try {
-        const q = query(collection(db, 'timetable'), where('batch', '==', studentData.batch));
+        // Fetch all and filter locally to ensure no strict DB index/type mismatch issues
+        const q = query(collection(db, 'timetable'));
         const snapshot = await getDocs(q);
-        const records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TimetableRecord));
+        let records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TimetableRecord));
+
+        // Filter by student's batch locally (robust matching, but allow older entries missing batch)
+        if (studentData.batch) {
+          records = records.filter(r => {
+            if (!r.batch) return true; // Show older entries that have no batch set
+            return r.batch.trim().toLowerCase() === studentData.batch.trim().toLowerCase();
+          });
+        }
+
+        // Filter by course if the timetable entry actually has a course defined
+        if (studentData.courseEnrolled) {
+          records = records.filter(r => !r.course || r.course?.trim().toLowerCase() === studentData.courseEnrolled?.trim().toLowerCase());
+        }
 
         // Sort days logically
         const daysOrder: Record<string, number> = { 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 7 };
+        
+        const parseTime = (timeStr: string) => {
+          if (!timeStr) return 0;
+          const startStr = timeStr.split('-')[0].trim(); 
+          const parts = startStr.split(' ');
+          if (parts.length !== 2) return 0;
+          const [time, modifier] = parts;
+          let [hours, minutes] = time.split(':').map(Number);
+          if (hours === 12 && modifier.toUpperCase() === 'AM') hours = 0;
+          if (hours !== 12 && modifier.toUpperCase() === 'PM') hours += 12;
+          return hours * 60 + (minutes || 0);
+        };
+
         records.sort((a, b) => {
           if (daysOrder[a.day] !== daysOrder[b.day]) {
             return (daysOrder[a.day] || 99) - (daysOrder[b.day] || 99);
           }
-          return a.startTime.localeCompare(b.startTime);
+          const timeA = a.timeSlot || a.startTime || '';
+          const timeB = b.timeSlot || b.startTime || '';
+          return parseTime(timeA) - parseTime(timeB);
         });
 
         setTimetable(records);
@@ -86,7 +117,7 @@ export const StudentTimetable = () => {
                       </div>
                       <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-950 text-xs font-medium text-slate-300 border border-slate-800">
                         <Clock className="w-3.5 h-3.5 text-slate-500" />
-                        {record.startTime} - {record.endTime}
+                        {record.timeSlot || `${record.startTime} - ${record.endTime}`}
                       </div>
                     </div>
 

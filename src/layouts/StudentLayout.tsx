@@ -136,12 +136,21 @@ export const StudentLayout = () => {
             <Menu className="h-6 w-6" />
           </button>
           <span className="text-lg font-bold text-white">Student Portal</span>
-          <div className="w-9 h-9 rounded-full bg-indigo-900/50 border border-indigo-800 flex items-center justify-center text-indigo-400 font-bold text-sm overflow-hidden">
-            {studentData?.profilePhotoUrl ? (
-               <img src={studentData.profilePhotoUrl} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-               studentData?.fullName?.charAt(0) || 'S'
-            )}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-indigo-900/50 border border-indigo-800 flex items-center justify-center text-indigo-400 font-bold text-sm overflow-hidden">
+              {studentData?.profilePhotoUrl ? (
+                 <img src={studentData.profilePhotoUrl} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                 studentData?.fullName?.charAt(0) || 'S'
+              )}
+            </div>
+            <button
+              onClick={handleLogout}
+              className="p-2 text-red-400 hover:text-red-300 hover:bg-slate-800 rounded-xl transition-colors focus:outline-none"
+              title="Logout"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
           </div>
         </header>
         
