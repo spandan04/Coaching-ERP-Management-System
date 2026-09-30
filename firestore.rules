@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // For development, we're allowing public read/write.
+    // In a production app with Auth, you would restrict this.
+    match /students/{studentId} {
+      allow read, write: if true;
+    }
+    match /archive/{studentId} {
+      allow read, write: if true;
+    }
+    match /documents/{documentId} {
+      allow read, write: if true;
+    }
+    match /lectures/{lectureId} {
+      allow read, write: if true;
+    }
+    match /timetable/{entryId} {
+      allow read, write: if true;
+    }
+    match /attendance/{attendanceId} {
+      allow read, write: if true;
+    }
+    match /tests/{testId} {
+      allow read, write: if true;
+    }
+    match /testAttempts/{attemptId} {
+      allow read, write: if true;
+    }
+    match /results/{resultId} {
+      allow read, write: if true;
+    }
+    match /feeStructures/{documentId} {
+      allow read, write: if true;
+    }
+    match /studentFees/{documentId} {
+      allow read, write: if true;
+    }
+    match /payments/{documentId} {
+      allow read, write: if true;
+    }
+    match /installments/{documentId} {
+      allow read, write: if true;
+    }
+    match /announcements/{documentId} {
+      allow read, write: if true;
+    }
+    match /notices/{documentId} {
+      allow read, write: if true;
+    }
+    match /notifications/{documentId} {
+      allow read, write: if true;
+    }
+    match /circulars/{documentId} {
+      allow read, write: if true;
+    }
+    match /videoLectures/{lectureId} {
+      allow read, write: if true;
+    }
+  }
+}
